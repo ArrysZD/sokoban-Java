@@ -1,5 +1,6 @@
 package sokoban.utils;
-public class SequenceListe {
+
+public class SequenceListe implements Sequence {
 
     private static class Noeud {
         int val;
@@ -13,7 +14,7 @@ public class SequenceListe {
     public void insereTete(int element) {
         Noeud n = new Noeud(element, tete);
         tete = n;
-        if (queue == null) queue = tete; // si c'était vide
+        if (queue == null) queue = tete;
     }
 
     public void insereQueue(int element) {
@@ -30,7 +31,7 @@ public class SequenceListe {
         if (estVide()) throw new RuntimeException("Séquence vide");
         int v = tete.val;
         tete = tete.next;
-        if (tete == null) queue = null; // la liste devient vide
+        if (tete == null) queue = null;
         return v;
     }
 
@@ -49,4 +50,48 @@ public class SequenceListe {
         sb.append("]");
         return sb.toString();
     }
+
+    public Iterateur iterateur() {
+        return new IterateurSequenceListe();
+    }
+    private class IterateurSequenceListe implements Iterateur {
+
+    private Noeud courant;      // prochain à lire
+    private Noeud dernier;      // dernier lu (à supprimer)
+    private Noeud avantDernier; // celui avant dernier
+    private boolean peutSupprimer;
+
+    IterateurSequenceListe() {
+        courant = tete;
+        dernier = null;
+        avantDernier = null;
+        peutSupprimer = false;
+    }
+
+    public boolean aProchain() {
+        return courant != null;
+    }
+
+    public int prochain() {
+    if (!aProchain()) throw new RuntimeException("Plus d'éléments");
+    avantDernier = dernier;
+    dernier = courant;
+    courant = courant.next;
+    peutSupprimer = true;
+    return dernier.val;
+}
+
+    public void supprime() {
+    if (!peutSupprimer) throw new IllegalStateException("supprime() appelé sans prochain()");
+    if (avantDernier == null) {
+        // supprimer la tete
+        tete = courant;
+        if (tete == null) queue = null;
+    } else {
+        avantDernier.next = courant;
+        if (courant == null) queue = avantDernier;
+    }
+    peutSupprimer = false;
+}
+}
 }

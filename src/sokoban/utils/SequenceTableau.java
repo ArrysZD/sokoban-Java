@@ -1,6 +1,7 @@
 package sokoban.utils;
 
-public class SequenceTableau {
+    public class SequenceTableau implements Sequence {
+
 
     private int[] tab;
     private int tete;  // indice du premier élément
@@ -60,4 +61,43 @@ public class SequenceTableau {
         sb.append("]");
         return sb.toString();
     }
+    public Iterateur iterateur() {
+    return new IterateurSequenceTableau();
+}
+
+private class IterateurSequenceTableau implements Iterateur {
+    private int indice;       // position courante (0 à size-1)
+    private int dernierIndice; // indice du dernier lu
+    private boolean peutSupprimer;
+
+    IterateurSequenceTableau() {
+        indice = 0;
+        dernierIndice = -1;
+        peutSupprimer = false;
+    }
+
+    public boolean aProchain() {
+        return indice < size;
+    }
+
+    public int prochain() {
+        if (!aProchain()) throw new RuntimeException("Plus d'éléments");
+        dernierIndice = indice;
+        indice++;
+        peutSupprimer = true;
+        return tab[(tete + dernierIndice) % tab.length];
+    }
+
+    public void supprime() {
+        if (!peutSupprimer) throw new IllegalStateException("supprime() sans prochain()");
+        // décaler les éléments après dernierIndice vers la gauche
+        for (int i = dernierIndice; i < size - 1; i++) {
+            tab[(tete + i) % tab.length] = tab[(tete + i + 1) % tab.length];
+        }
+        queue = (queue - 1 + tab.length) % tab.length;
+        size--;
+        indice--;
+        peutSupprimer = false;
+    }
+}
 }
