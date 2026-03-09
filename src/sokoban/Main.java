@@ -1,17 +1,23 @@
 package sokoban;
-
+import sokoban.global.Configuration;
+import sokoban.model.Jeu;
+import sokoban.view.InterfaceGraphique;
 import java.io.FileInputStream;
-import sokoban.io.LecteurNiveaux;
-import sokoban.model.Niveau;
-import sokoban.view.RedacteurNiveau;
-
+import javax.swing.*;
+import java.io.InputStream;
 public class Main {
-    public static void main(String[] args) throws Exception {
-        LecteurNiveaux lecteur = new LecteurNiveaux(new FileInputStream("levels/level1.txt"));
-        RedacteurNiveau redacteur = new RedacteurNiveau(System.out);
-        Niveau niveau;
-        while ((niveau = lecteur.lisProchainNiveau()) != null) {
-            redacteur.ecrisNiveau(niveau);
+    public static void main(String[] args) {
+        try {
+            InputStream file = Configuration.ouvre("levels/level1.txt");
+            Jeu jeu = new Jeu(file);
+            int n = Integer.parseInt(args[0]);
+            for (int i = 0; i < n; i++) {
+                jeu.prochainNiveau();
+            }
+            SwingUtilities.invokeLater(new InterfaceGraphique(jeu));
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 }
