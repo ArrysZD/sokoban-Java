@@ -1,0 +1,68 @@
+================================================
+SOKOBAN - Résumé des TPs
+================================================
+
+TP1 - Lecture et affichage des niveaux
+---------------------------------------
+But : Lire un fichier de niveaux Sokoban et les afficher dans le terminal.
+
+Classes créées :
+- Board.java (model/) : grille en mémoire, tableau 2D de char
+    * setCell / getCell pour accéder aux cases
+    * isWall / isBox / isGoal / isPlayer pour interroger une case
+    * getRows / getCols / getName pour les infos du niveau
+
+- LevelLoader.java (io/) : lit le fichier niveau par niveau
+    * lit ligne par ligne avec Scanner
+    * ligne vide = séparateur entre deux niveaux
+    * ligne commençant par ";" = commentaire = nom du niveau
+    * stocke les lignes dans un ArrayList avant de créer le Board
+    * retourne null quand le fichier est terminé
+
+- ConsoleView.java (view/) : affiche un Board dans le terminal
+    * deux boucles for imbriquées sur lignes/colonnes
+    * System.out.print pour chaque case, println en fin de ligne
+
+- Main.java : ouvre le fichier, charge et affiche chaque niveau en boucle
+
+Notions Java vues :
+- Scanner et nextLine() pour lire un flux
+- try/catch pour gérer les exceptions (NoSuchElementException)
+- Tableaux 2D : int[][] tab = new int[rows][cols]
+- ArrayList<String> pour stocker des lignes sans connaître la taille à l'avance
+- Compilation : javac -cp src -d bin
+- Exécution  : java -cp bin sokoban.Main
+
+
+TP2 - Structures de données
+---------------------------------------
+But : Implémenter une séquence (insereTete, insereQueue, extraitTete, estVide)
+de deux façons différentes.
+
+Classes créées :
+- SequenceListe.java (utils/) : liste chaînée
+    * classe interne Noeud (val + next)
+    * deux références : tete et queue
+    * insereTete : nouveau noeud pointe vers l'ancienne tete
+    * insereQueue : nouveau noeud en fin de chaîne
+    * extraitTete : avance la reference tete
+
+- SequenceTableau.java (utils/) : tableau circulaire avec redimensionnement
+    * deux indices : tete et queue qui avancent avec le modulo %
+    * insereTete : recule tete -> tete = (tete - 1 + length) % length
+    * insereQueue : avance queue -> queue = (queue + 1) % length
+    * extraitTete : avance tete -> tete = (tete + 1) % length
+    * agrandir() : double la taille quand le tableau est plein
+      (copie propre dans un nouveau tableau, remet tete=0, queue=size)
+
+Pourquoi doubler la taille ?
+    -> complexité amortie O(1) par insertion en moyenne
+    -> si on agrandissait de +1 à chaque fois ce serait O(n) par insertion
+
+Exceptions vérifiées vs non vérifiées :
+    -> Exception        : le compilateur oblige un try/catch partout (vérifiée)
+    -> RuntimeException : pas de try/catch obligatoire (non vérifiée)
+    -> RuntimeException est appropriée ici car extraitTete() sur une séquence
+       vide est une erreur de programmation, pas une erreur à anticiper
+
+================================================
