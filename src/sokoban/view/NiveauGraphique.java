@@ -6,6 +6,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.FileInputStream;
+import sokoban.controller.EcouteurSouris;
+
 
 public class NiveauGraphique extends JComponent {
     Jeu jeu;
@@ -29,6 +31,8 @@ public class NiveauGraphique extends JComponent {
             e.printStackTrace();
             System.exit(1);
         }
+            addMouseListener(new EcouteurSouris(jeu, this));
+
     }
 
     @Override

@@ -1,0 +1,213 @@
+================================================
+SOKOBAN - Résumé complet des TPs
+================================================
+
+TP1 - Lire et afficher un niveau
+---------------------------------
+On veut lire un fichier texte qui décrit un niveau Sokoban et l'afficher dans le terminal.
+
+Un niveau Sokoban c'est une grille. Chaque caractère dans le fichier représente une case :
+    '#' = mur
+    '@' = joueur
+    '$' = caisse
+    '.' = but
+    '*' = caisse sur un but
+    '+' = joueur sur un but
+    ' ' = vide
+
+Pour faire ça on a créé 3 classes :
+
+1) Niveau.java (model/)
+   → C'est la grille en mémoire. On la stocke dans un tableau 2D de char.
+   → Elle a des méthodes pour ajouter des éléments (ajouteMur, ajouteCaisse...)
+   → et des méthodes pour poser des questions (aMur? aCaisse? aPousseur?)
+   → La subtilité : si on ajoute une caisse sur une case qui a déjà un but,
+     la méthode met '*' toute seule. Pareil pour le joueur sur un but → '+'
+
+2) LecteurNiveaux.java (io/)
+   → Lit le fichier ligne par ligne avec un Scanner
+   → Une ligne vide = séparateur entre deux niveaux
+   → Une ligne commençant par ';' = commentaire = nom du niveau
+   → Stocke les lignes dans un ArrayList car on ne connait pas la taille à l'avance
+   → Retourne null quand il n'y a plus de niveaux à lire
+
+3) RedacteurNiveau.java (view/)
+   → Prend un Niveau et l'affiche case par case dans le terminal
+   → Deux boucles for imbriquées : une pour les lignes, une pour les colonnes
+
+4) Main.java
+   → Ouvre le fichier, charge chaque niveau et l'affiche en boucle
+
+Notions Java apprises :
+   → Scanner pour lire un flux (clavier ou fichier)
+   → try/catch pour gérer les erreurs proprement
+   → ArrayList pour stocker des données sans connaître la taille à l'avance
+   → Tableaux 2D : int[][] tab = new int[lignes][colonnes]
+   → Compilation : javac -cp src -d bin
+   → Exécution  : java -cp bin sokoban.Main
+
+
+TP2 - Structures de données (Séquences)
+-----------------------------------------
+On veut une structure qui stocke une suite de valeurs.
+On peut ajouter en tête, ajouter en queue, et extraire en tête.
+C'est comme une file d'attente.
+
+On l'a implémenté de deux façons :
+
+1) SequenceListe.java → Liste chaînée
+   → Chaque élément est un Noeud qui contient une valeur et un pointeur vers le suivant
+   → On garde deux références : tete (premier) et queue (dernier)
+   → insereTete : nouveau noeud qui pointe vers l'ancienne tete
+   → insereQueue : nouveau noeud ajouté à la fin
+   → extraitTete : on avance tete vers le noeud suivant
+   → Le garbage collector libère automatiquement les noeuds inutilisés
+
+2) SequenceTableau.java → Tableau circulaire avec redimensionnement
+   → Tableau avec deux indices : tete et queue qui avancent en tournant en rond
+      ex: tete = (tete + 1) % tab.length
+   → Quand le tableau est plein, agrandir() le double
+   → Pourquoi doubler ? Complexité amortie O(1) par insertion en moyenne
+
+Exceptions :
+   → RuntimeException : pas de try/catch obligatoire (non vérifiée)
+   → Exception : le compilateur oblige un try/catch partout (vérifiée)
+   → On utilise RuntimeException car extraitTete() sur une séquence vide
+     est une erreur du programmeur, pas une erreur à anticiper
+
+
+TP3 - Itérateurs
+------------------
+Problème : parcourir une séquence avec un indice i est compliqué
+car les indices changent quand on supprime des éléments.
+
+Solution : un itérateur est un objet curseur qui se souvient de sa position
+et qui sait avancer et supprimer proprement.
+
+Utilisation :
+    Iterateur it = maSequence.iterateur();
+    while (it.aProchain()) {
+        int n = it.prochain();
+        if (n == 0) it.supprime();
+    }
+
+On a créé :
+
+1) Interface Sequence → contrat commun aux deux implémentations
+   → insereTete, insereQueue, extraitTete, estVide, iterateur()
+
+2) Interface Iterateur → contrat de l'itérateur
+   → aProchain() : est-ce qu'il reste des éléments ?
+   → prochain()  : avance et renvoie l'élément traversé
+   → supprime()  : supprime le dernier élément traversé
+
+3) IterateurSequenceListe (classe interne de SequenceListe)
+   → Stocke courant, dernier, avantDernier pour supprimer sans reparcourir
+   → Classe interne car elle a besoin d'accéder aux noeuds privés
+
+4) IterateurSequenceTableau (classe interne de SequenceTableau)
+   → Stocke indice et dernierIndice
+   → supprime() décale les éléments et ajuste queue et size
+
+Pourquoi la séquence crée son propre itérateur avec iterateur() ?
+   → Garantit que la séquence n'est pas null
+   → L'utilisateur ne voit que l'interface Iterateur, pas le type précis
+   → La séquence passe this au constructeur de l'itérateur
+
+
+TP4 - Généricité
+------------------
+Problème : nos séquences ne stockent que des int.
+On veut pouvoir stocker n'importe quel type d'objet.
+
+Solution : les génériques. On ajoute <T> après le nom de la classe.
+T sera remplacé par le vrai type à l'utilisation.
+
+    public class SequenceListe<T> { ... }
+    SequenceListe<String> s = new SequenceListe<>();
+
+Changements principaux :
+   → int devient T dans les méthodes
+   → new int[] devient (T[]) new Object[] (new T[] est impossible en Java)
+   → Les interfaces deviennent Sequence<T> et Iterateur<T>
+
+FAP (File d'Attente à Priorité) :
+   → Une file où on extrait toujours l'élément le plus petit en premier
+   → T extends Comparable<T> pour pouvoir comparer les éléments
+   → Notre choix : séquence non triée, on cherche le min à l'extraction
+   → insere(T element), extraitMin(), estVide()
+
+Classe Couple<V, P> :
+   → Paire (valeur, priorité) utilisable dans la FAP
+   → Comparable selon la priorité
+
+Rangement :
+   → Toutes les structures dans sokoban.structures
+
+
+TP5 - Interface graphique Swing
+---------------------------------
+On veut afficher le niveau dans une vraie fenêtre avec des images PNG.
+
+Concepts Swing :
+   → JFrame : la fenêtre
+   → JComponent : composant graphique ajouté à la fenêtre
+   → paintComponent(Graphics g) : appelée automatiquement quand la fenêtre
+     doit être redessinée (redimensionnement, démasquage...)
+   → On doit TOUT redessiner à chaque appel car le système ne sauvegarde pas
+     le contenu de la fenêtre
+   → Swing tourne dans un thread séparé → SwingUtilities.invokeLater()
+
+Classes créées :
+
+1) Jeu.java (model/)
+   → Encapsule le LecteurNiveaux
+   → niveau() : retourne le niveau en cours
+   → prochainNiveau() : passe au niveau suivant
+
+2) NiveauGraphique.java (view/)
+   → Étend JComponent
+   → Charge les images PNG au constructeur
+   → paintComponent calcule la taille d'une case :
+       largeur = getWidth() / colonnes
+       hauteur = getHeight() / lignes
+     puis dessine chaque case avec la bonne image
+   → Le niveau se redimensionne automatiquement !
+
+3) InterfaceGraphique.java (view/)
+   → Implémente Runnable pour Swing
+   → run() crée la JFrame, ajoute NiveauGraphique et affiche
+
+4) Configuration.java (global/)
+   → ouvre(chemin) : ouvre un fichier dans res/
+   → avertissement(message) : affiche un avertissement
+   → erreur(message) : affiche une erreur et quitte
+   → desactiverAvertissements() et desactiverTousMessages()
+   → Tous les fichiers utilisent Configuration.ouvre() au lieu de new FileInputStream
+
+Structure finale du projet :
+   src/sokoban/
+       Main.java
+       model/
+           Niveau.java            → grille en mémoire
+           Jeu.java               → orchestre le jeu
+       io/
+           LecteurNiveaux.java    → lit le fichier de niveaux
+       view/
+           RedacteurNiveau.java   → affichage texte
+           NiveauGraphique.java   → affichage graphique
+           InterfaceGraphique.java → fenêtre Swing
+       structures/
+           Sequence.java          → interface générique
+           Iterateur.java         → interface itérateur
+           SequenceListe.java     → liste chaînée
+           SequenceTableau.java   → tableau circulaire
+           FAP.java               → file à priorité
+           Couple.java            → paire (valeur, priorité)
+       global/
+           Configuration.java    → utilitaires globaux
+   res/
+       levels/level1.txt         → fichier de niveaux
+       Images/                   → sprites PNG
+
+================================================

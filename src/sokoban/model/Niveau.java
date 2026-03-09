@@ -15,8 +15,12 @@ public class Niveau {
         this.nomNiveau = nom;
     }
 
-    public void videCase(int ligne, int colonne) {
-        this.monTableau[ligne][colonne] = ' ';
+    public void videCase(int i, int j) {
+    // si c'était un but on le remet
+    if (monTableau[i][j] == '+' || monTableau[i][j] == '*') {
+        monTableau[i][j] = '.';
+    } else {monTableau[i][j] = ' ';
+    }
     }
 
     public void ajouteMur(int ligne, int colonne) {
@@ -47,6 +51,39 @@ public class Niveau {
         } else {
             this.monTableau[ligne][colonne] = '.'; // case but vide
         }
+    }
+
+    public int lignePousseur() {
+        for (int i = 0; i < this.nblignes; i++) {
+            for (int j = 0; j < this.nbcolonnes; j++) {
+                if (this.aPousseur(i, j)) {
+                    return i;
+                }
+            }
+        }
+        return -1; // pousseur non trouvé
+    }
+
+    public int colonnePousseur() {
+        for (int i = 0; i < this.nblignes; i++) {
+            for (int j = 0; j < this.nbcolonnes; j++) {
+                if (this.aPousseur(i, j)) {
+                    return j;
+                }
+            }
+        }
+        return -1; // pousseur non trouvé
+    }
+
+    public boolean estGagne() {
+        for (int i = 0; i < this.nblignes; i++) {
+            for (int j = 0; j < this.nbcolonnes; j++) {
+                if (this.monTableau[i][j] == '$') {
+                    return false; // il reste un but non occupé
+                }
+            }
+        }
+        return true; // tous les buts sont occupés
     }
 
     public int lignes() {
