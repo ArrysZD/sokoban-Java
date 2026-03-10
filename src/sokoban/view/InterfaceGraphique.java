@@ -35,5 +35,6 @@ public class InterfaceGraphique implements Runnable {
         frame.addKeyListener(new EcouteurClavier(jeu, niveauGraphique, this));
         frame.setSize(500, 300);
         frame.setVisible(true);
+        toggleFullscreen();
     }
 }
