@@ -24,11 +24,11 @@
  *          Domaine universitaire
  *          38401 Saint Martin d'Hères
  */
-package sokoban.controller;
+package sokoban.Controleur;
 
-import sokoban.model.Jeu;
-import sokoban.view.NiveauGraphique;
-import sokoban.view.InterfaceGraphique;
+import sokoban.Modele.Jeu;
+import sokoban.Vue.NiveauGraphique;
+import sokoban.Vue.InterfaceGraphique;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
 

@@ -1,4 +1,4 @@
-package sokoban.model;
+package sokoban.Modele;
 public class Niveau {
     private char[][] monTableau;
     private String nomNiveau;

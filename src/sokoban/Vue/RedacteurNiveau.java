@@ -1,8 +1,8 @@
-package sokoban.view;
+package sokoban.Vue;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
-import sokoban.model.Niveau;
+import sokoban.Modele.Niveau;
 
 public class RedacteurNiveau {
     private PrintStream output;

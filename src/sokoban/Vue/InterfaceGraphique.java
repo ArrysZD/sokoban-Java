@@ -1,7 +1,7 @@
-package sokoban.view;
+package sokoban.Vue;
 
-import sokoban.model.Jeu;
-import sokoban.controller.EcouteurClavier;
+import sokoban.Modele.Jeu;
+import sokoban.Controleur.EcouteurClavier;
 import javax.swing.*;
 import java.awt.*;
 

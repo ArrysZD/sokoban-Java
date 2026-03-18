@@ -1,4 +1,4 @@
-package sokoban.model;
+package sokoban.Modele;
 
 import sokoban.io.LecteurNiveaux;
 import java.io.InputStream;

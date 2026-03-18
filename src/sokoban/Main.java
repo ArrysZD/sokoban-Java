@@ -1,7 +1,7 @@
 package sokoban;
 import sokoban.global.Configuration;
-import sokoban.model.Jeu;
-import sokoban.view.InterfaceGraphique;
+import sokoban.Modele.Jeu;
+import sokoban.Vue.InterfaceGraphique;
 import java.io.FileInputStream;
 import javax.swing.*;
 import java.io.InputStream;

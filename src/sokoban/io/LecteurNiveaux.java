@@ -3,7 +3,7 @@ package sokoban.io;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Scanner;
-import sokoban.model.Niveau;
+import sokoban.Modele.Niveau;
 
 public class LecteurNiveaux {
     private Scanner scanner;

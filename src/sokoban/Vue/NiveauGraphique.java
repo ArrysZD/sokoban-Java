@@ -1,12 +1,12 @@
-package sokoban.view;
+package sokoban.Vue;
 import sokoban.global.Configuration;
-import sokoban.model.Jeu;
-import sokoban.model.Niveau;
+import sokoban.Modele.Jeu;
+import sokoban.Modele.Niveau;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.io.FileInputStream;
-import sokoban.controller.EcouteurSouris;
+import sokoban.Controleur.EcouteurSouris;
 
 
 public class NiveauGraphique extends JComponent {
