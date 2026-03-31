@@ -36,11 +36,13 @@ public class EcouteurClavier extends KeyAdapter {
     private Jeu jeu;
     private NiveauGraphique vue;
     private InterfaceGraphique ig;
+    private AnimationJeuAutomatique animationIA;
 
-    public EcouteurClavier(Jeu jeu, NiveauGraphique vue, InterfaceGraphique ig) {
+    public EcouteurClavier(Jeu jeu, NiveauGraphique vue, InterfaceGraphique ig, AnimationJeuAutomatique animationIA) {
         this.jeu = jeu;
         this.vue = vue;
         this.ig = ig;
+        this.animationIA = animationIA;
     }
 
     @Override
@@ -52,6 +54,7 @@ public class EcouteurClavier extends KeyAdapter {
             case KeyEvent.VK_DOWN:   dl =  1; break;
             case KeyEvent.VK_LEFT:   dc = -1; break;
             case KeyEvent.VK_RIGHT:  dc =  1; break;
+            case KeyEvent.VK_I:      animationIA.toggleActive(); return;
             case KeyEvent.VK_A:
             case KeyEvent.VK_Q:      System.exit(0); return;
             case KeyEvent.VK_ESCAPE: ig.toggleFullscreen(); return;
@@ -59,11 +62,11 @@ public class EcouteurClavier extends KeyAdapter {
         }
 
         jeu.deplace(dl, dc);
+        jeu.niveau().videMarques();
+
         if (jeu.niveau().estGagne()) {
             if (!jeu.prochainNiveau()) System.exit(0);
         }
         vue.repaint();
     }
-    // KeyAdapter fournit déjà des implémentations vides
-    // de keyReleased et keyTyped, pas besoin de les réécrire
 }

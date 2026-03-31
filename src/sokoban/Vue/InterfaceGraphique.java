@@ -2,6 +2,8 @@ package sokoban.Vue;
 
 import sokoban.Modele.Jeu;
 import sokoban.Controleur.EcouteurClavier;
+import sokoban.Controleur.AnimationJeuAutomatique;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -29,12 +31,20 @@ public class InterfaceGraphique implements Runnable {
     public void run() {
         frame = new JFrame("Sokoban");
         NiveauGraphique niveauGraphique = new NiveauGraphique(jeu);
+
+        AnimationJeuAutomatique animationIA = new AnimationJeuAutomatique(jeu, niveauGraphique);
+
         frame.add(niveauGraphique);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        // Le clavier s'attache à la fenêtre car elle a le focus
-        frame.addKeyListener(new EcouteurClavier(jeu, niveauGraphique, this));
+        frame.addKeyListener(new EcouteurClavier(jeu, niveauGraphique, this, animationIA));
         frame.setSize(500, 300);
         frame.setVisible(true);
         toggleFullscreen();
+
+        Timer timer = new Timer(16, e -> {
+            animationIA.avance();
+            niveauGraphique.repaint();
+        });
+        timer.start();
     }
 }
