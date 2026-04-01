@@ -6,6 +6,8 @@ import java.io.InputStream;
 public class Jeu {
     private LecteurNiveaux lecteur;
     private Niveau niveauCourant;
+    private int nbPas = 0;
+    private int nbPoussees = 0;
 
     public Jeu(InputStream in) {
         lecteur = new LecteurNiveaux(in);
@@ -16,8 +18,13 @@ public class Jeu {
         return niveauCourant;
     }
 
+    public int getNbPas() { return nbPas; }
+    public int getNbPoussees() { return nbPoussees; }
+    public void resetCompteurs() { nbPas = 0; nbPoussees = 0; }
+
     public boolean prochainNiveau() {
         niveauCourant = lecteur.lisProchainNiveau();
+        resetCompteurs();
         return niveauCourant != null;
     }
 
@@ -28,18 +35,14 @@ public class Jeu {
         int lCible = lp + dl;
         int cCible = cp + dc;
 
-        // Vérifier qu'on ne sort pas de la grille
         if (lCible < 0 || lCible >= n.lignes() || cCible < 0 || cCible >= n.colonnes())
             return;
 
-        // Cas 1 : case cible libre
         if (!n.aMur(lCible, cCible) && !n.aCaisse(lCible, cCible)) {
             n.videCase(lp, cp);
             n.ajoutePousseur(lCible, cCible);
-        }
-
-        // Cas 2 : caisse poussable
-        else if (n.aCaisse(lCible, cCible)) {
+            nbPas++;
+        } else if (n.aCaisse(lCible, cCible)) {
             int lDerriere = lCible + dl;
             int cDerriere = cCible + dc;
             if (!n.aMur(lDerriere, cDerriere) && !n.aCaisse(lDerriere, cDerriere)) {
@@ -47,11 +50,18 @@ public class Jeu {
                 n.videCase(lCible, cCible);
                 n.ajouteCaisse(lDerriere, cDerriere);
                 n.ajoutePousseur(lCible, cCible);
+                nbPas++;
+                nbPoussees++;
             }
         }
     }
-
     public Coup deplaceAvecCoup(int dl, int dc) {
-        return niveauCourant.deplacer(dl, dc);
+    Coup coup = niveauCourant.deplacer(dl, dc);
+    if (coup != null) {
+        nbPas++;
+        if (coup.caisseBougee) nbPoussees++;
     }
+    return coup;
+}
+
 }
