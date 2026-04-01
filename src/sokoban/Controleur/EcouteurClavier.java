@@ -26,47 +26,108 @@
  */
 package sokoban.Controleur;
 
+import sokoban.Modele.Coup;
 import sokoban.Modele.Jeu;
-import sokoban.Vue.NiveauGraphique;
 import sokoban.Vue.InterfaceGraphique;
-import java.awt.event.KeyEvent;
+import sokoban.Vue.NiveauGraphique;
+
 import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 public class EcouteurClavier extends KeyAdapter {
-    private Jeu jeu;
-    private NiveauGraphique vue;
-    private InterfaceGraphique ig;
-    private AnimationJeuAutomatique animationIA;
+    private final Jeu jeu;
+    private final NiveauGraphique vue;
+    private final InterfaceGraphique ig;
+    private final AnimationJeuAutomatique animationIA;
+    private final AnimationPousseur animationPousseur;
 
-    public EcouteurClavier(Jeu jeu, NiveauGraphique vue, InterfaceGraphique ig, AnimationJeuAutomatique animationIA) {
+    public EcouteurClavier(
+            Jeu jeu,
+            NiveauGraphique vue,
+            InterfaceGraphique ig,
+            AnimationJeuAutomatique animationIA,
+            AnimationPousseur animationPousseur
+    ) {
         this.jeu = jeu;
         this.vue = vue;
         this.ig = ig;
         this.animationIA = animationIA;
+        this.animationPousseur = animationPousseur;
     }
 
     @Override
     public void keyPressed(KeyEvent e) {
-        int dl = 0, dc = 0;
+        int dl = 0;
+        int dc = 0;
 
         switch (e.getKeyCode()) {
-            case KeyEvent.VK_UP:     dl = -1; break;
-            case KeyEvent.VK_DOWN:   dl =  1; break;
-            case KeyEvent.VK_LEFT:   dc = -1; break;
-            case KeyEvent.VK_RIGHT:  dc =  1; break;
-            case KeyEvent.VK_I:      animationIA.toggleActive(); return;
+            case KeyEvent.VK_UP:
+                dl = -1;
+                animationPousseur.setDirection(0);
+                break;
+
+            case KeyEvent.VK_LEFT:
+                dc = -1;
+                animationPousseur.setDirection(1);
+                break;
+
+            case KeyEvent.VK_DOWN:
+                dl = 1;
+                animationPousseur.setDirection(2);
+                break;
+
+            case KeyEvent.VK_RIGHT:
+                dc = 1;
+                animationPousseur.setDirection(3);
+                break;
+
+            case KeyEvent.VK_I:
+                animationIA.toggleActive();
+                return;
+
+            case KeyEvent.VK_P:
+                ig.toggleAnimations();
+                return;
+
+            case KeyEvent.VK_U:
+                if (jeu.niveau().peutAnnuler()) {
+                    jeu.niveau().annuler();
+                    vue.repaint();
+                }
+                return;
+
+            case KeyEvent.VK_R:
+                if (jeu.niveau().peutRefaire()) {
+                    jeu.niveau().refaire();
+                    vue.repaint();
+                }
+                return;
+
             case KeyEvent.VK_A:
-            case KeyEvent.VK_Q:      System.exit(0); return;
-            case KeyEvent.VK_ESCAPE: ig.toggleFullscreen(); return;
-            default: return;
+            case KeyEvent.VK_Q:
+                System.exit(0);
+                return;
+
+            case KeyEvent.VK_ESCAPE:
+                ig.toggleFullscreen();
+                return;
+
+            default:
+                return;
         }
 
-        jeu.deplace(dl, dc);
-        jeu.niveau().videMarques();
+        Coup coup = jeu.deplaceAvecCoup(dl, dc);
+        if (coup != null) {
+            jeu.niveau().faire(coup);
+            jeu.niveau().videMarques();
 
-        if (jeu.niveau().estGagne()) {
-            if (!jeu.prochainNiveau()) System.exit(0);
+            if (jeu.niveau().estGagne()) {
+                if (!jeu.prochainNiveau()) {
+                    System.exit(0);
+                }
+            }
         }
+
         vue.repaint();
     }
 }

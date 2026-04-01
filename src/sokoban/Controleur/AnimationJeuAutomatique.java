@@ -10,11 +10,11 @@ import sokoban.Vue.NiveauGraphique;
 import java.awt.Color;
 
 public class AnimationJeuAutomatique {
-    private AleatoireCoupAi ai;
-    private Jeu jeu;
-    private NiveauGraphique vue;
+    private final AleatoireCoupAi ai;
+    private final Jeu jeu;
+    private final NiveauGraphique vue;
 
-    private int cmp = 0;
+    private int compteur = 0;
     private static final int INTERVALLE = 30;
     private boolean active = false;
 
@@ -37,28 +37,35 @@ public class AnimationJeuAutomatique {
     }
 
     public void avance() {
-        if (!active) return;
+        if (!active) {
+            return;
+        }
 
-        cmp++;
-        if (cmp >= INTERVALLE) {
-            cmp = 0;
+        compteur++;
+        if (compteur < INTERVALLE) {
+            return;
+        }
 
-            Niveau copie = jeu.niveau().clone();
-            Direction dir = ai.retournCoupAi(copie);
-            Coup coup = jeu.deplaceAvecCoup(dir.deltaligne, dir.deltacolonne);
+        compteur = 0;
 
-            if (coup != null) {
-                jeu.niveau().videMarques();
-                jeu.niveau().poseMarque(coup.ligneArrivee, coup.colonneArrivee, Color.RED);
+        Niveau copie = jeu.niveau().clone();
+        Direction dir = ai.retournCoupAi(copie);
+        Coup coup = jeu.deplaceAvecCoup(dir.deltaligne, dir.deltacolonne);
 
-                if (jeu.niveau().estGagne()) {
-                    if (!jeu.prochainNiveau()) {
-                        System.exit(0);
-                    }
+        if (coup != null) {
+            jeu.niveau().faire(coup);
+
+            jeu.niveau().videMarques();
+            coup.ajouteMarque(coup.ligneArrivee, coup.colonneArrivee, Color.RED);
+            jeu.niveau().poseMarque(coup.ligneArrivee, coup.colonneArrivee, Color.RED);
+
+            if (jeu.niveau().estGagne()) {
+                if (!jeu.prochainNiveau()) {
+                    System.exit(0);
                 }
-
-                vue.repaint();
             }
+
+            vue.repaint();
         }
     }
 }

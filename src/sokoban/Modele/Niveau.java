@@ -4,7 +4,7 @@ import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Niveau {
+public class Niveau extends HistoriqueAPile<Coup> {
     private char[][] monTableau;
     private String nomNiveau;
     private int nblignes;
@@ -15,6 +15,11 @@ public class Niveau {
         this.nblignes = nblignes;
         this.nbcolonnes = nbcolonnes;
         this.monTableau = new char[nblignes][nbcolonnes];
+    }
+
+    @Override
+    protected Niveau niveauHistorique() {
+        return this;
     }
 
     public void fixeNom(String nom) {
@@ -75,39 +80,6 @@ public class Niveau {
         }
     }
 
-    public int lignePousseur() {
-        for (int i = 0; i < this.nblignes; i++) {
-            for (int j = 0; j < this.nbcolonnes; j++) {
-                if (this.aPousseur(i, j)) {
-                    return i;
-                }
-            }
-        }
-        return -1;
-    }
-
-    public int colonnePousseur() {
-        for (int i = 0; i < this.nblignes; i++) {
-            for (int j = 0; j < this.nbcolonnes; j++) {
-                if (this.aPousseur(i, j)) {
-                    return j;
-                }
-            }
-        }
-        return -1;
-    }
-
-    public boolean estGagne() {
-        for (int i = 0; i < this.nblignes; i++) {
-            for (int j = 0; j < this.nbcolonnes; j++) {
-                if (this.monTableau[i][j] == '$') {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
     public int lignes() {
         return this.monTableau.length;
     }
@@ -148,6 +120,28 @@ public class Niveau {
         return this.monTableau[ligne][colonne];
     }
 
+    public int lignePousseur() {
+        for (int i = 0; i < this.nblignes; i++) {
+            for (int j = 0; j < this.nbcolonnes; j++) {
+                if (this.aPousseur(i, j)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
+    }
+
+    public int colonnePousseur() {
+        for (int i = 0; i < this.nblignes; i++) {
+            for (int j = 0; j < this.nbcolonnes; j++) {
+                if (this.aPousseur(i, j)) {
+                    return j;
+                }
+            }
+        }
+        return -1;
+    }
+
     public Coup deplacer(int dl, int dc) {
         int l = lignePousseur();
         int c = colonnePousseur();
@@ -184,6 +178,17 @@ public class Niveau {
             coup.setCaisse(nl, nc, nl2, nc2);
             return coup;
         }
+    }
+
+    public boolean estGagne() {
+        for (int i = 0; i < this.nblignes; i++) {
+            for (int j = 0; j < this.nbcolonnes; j++) {
+                if (this.monTableau[i][j] == '$') {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override

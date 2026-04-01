@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class NiveauGraphique extends JComponent {
-    private Jeu jeu;
+    private final Jeu jeu;
 
     private Image imgMur;
     private Image imgPousseur;
@@ -21,7 +21,8 @@ public class NiveauGraphique extends JComponent {
     private Image imgCaisseBut;
     private Image imgSol;
 
-    private Map<String, float[]> decalages = new HashMap<>();
+    private Image[][] imgPousseurAnim;
+    private final Map<String, float[]> decalages = new HashMap<>();
 
     NiveauGraphique(Jeu jeu) {
         this.jeu = jeu;
@@ -32,6 +33,15 @@ public class NiveauGraphique extends JComponent {
             imgCaisse = ImageIO.read(Configuration.ouvre("Images/Caisse.png"));
             imgCaisseBut = ImageIO.read(Configuration.ouvre("Images/Caisse_sur_but.png"));
             imgSol = ImageIO.read(Configuration.ouvre("Images/Sol.png"));
+
+            imgPousseurAnim = new Image[4][4];
+            for (int direction = 0; direction < 4; direction++) {
+                for (int frame = 0; frame < 4; frame++) {
+                    imgPousseurAnim[direction][frame] = ImageIO.read(
+                        Configuration.ouvre("Images_/Pousseur_" + direction + "_" + frame + ".png")
+                    );
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -52,6 +62,14 @@ public class NiveauGraphique extends JComponent {
         decalages.clear();
     }
 
+    public Image getImageAnim(int direction, int frame) {
+        return imgPousseurAnim[direction][frame];
+    }
+
+    public void setImagePousseur(Image img) {
+        imgPousseur = img;
+    }
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -65,7 +83,7 @@ public class NiveauGraphique extends JComponent {
         drawable.setColor(Color.BLACK);
         drawable.fillRect(0, 0, getWidth(), getHeight());
 
-        // PASSE 1 : fond statique
+        // Fond statique
         for (int i = 0; i < tmp.lignes(); i++) {
             for (int j = 0; j < tmp.colonnes(); j++) {
                 int x = j * largeur;
@@ -100,7 +118,7 @@ public class NiveauGraphique extends JComponent {
             }
         }
 
-        // PASSE 2 : éléments mobiles avec décalage
+        // Eléments mobiles avec décalage
         for (int i = 0; i < tmp.lignes(); i++) {
             for (int j = 0; j < tmp.colonnes(); j++) {
                 char c = tmp.getCase(i, j);
@@ -132,7 +150,7 @@ public class NiveauGraphique extends JComponent {
             }
         }
 
-        // PASSE 3 : marques
+        // Marques
         for (int i = 0; i < tmp.lignes(); i++) {
             for (int j = 0; j < tmp.colonnes(); j++) {
                 Color marque = tmp.getMarque(i, j);
