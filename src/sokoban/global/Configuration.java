@@ -36,4 +36,8 @@ public class Configuration {
     public static void desactiverTousMessages() {
         afficherMessages = false;
     }
+
+    public static <T> sokoban.structures.SequenceListe<T> nouvelleSequence() {
+    return new sokoban.structures.SequenceListe<>();
+}
 }

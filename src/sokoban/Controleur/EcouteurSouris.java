@@ -26,6 +26,7 @@
  */
 package sokoban.Controleur;
 
+import sokoban.Modele.IAAssistance;
 import sokoban.Modele.Jeu;
 import sokoban.Vue.NiveauGraphique;
 import javax.swing.*;
@@ -43,36 +44,31 @@ public class EcouteurSouris implements MouseListener {
 
     @Override
     public void mousePressed(MouseEvent e) {
-        // Calculer sur quelle case on a cliqué
         int col = e.getX() * jeu.niveau().colonnes() / vue.getWidth();
         int lig = e.getY() * jeu.niveau().lignes() / vue.getHeight();
 
-        // Position du pousseur
         int lp = jeu.niveau().lignePousseur();
         int cp = jeu.niveau().colonnePousseur();
 
-        // Calculer le déplacement
         int dl = lig - lp;
         int dc = col - cp;
 
-        // Déplacement valide seulement si case adjacente
         if (Math.abs(dl) + Math.abs(dc) == 1) {
             jeu.deplace(dl, dc);
-            // Vérifier si gagné
+            jeu.niveau().videMarques();
+            for (String s : IAAssistance.casesAccessibles(jeu.niveau())) {
+                String[] parts = s.split(",");
+                int l = Integer.parseInt(parts[0]);
+                int c = Integer.parseInt(parts[1]);
+                jeu.niveau().poseMarque(l, c, java.awt.Color.BLUE);
+            }
             if (jeu.niveau().estGagne()) {
-                if (!jeu.prochainNiveau()) {
-                    System.exit(0);
-                }
+                if (!jeu.prochainNiveau()) System.exit(0);
             }
             vue.repaint();
         }
     }
 
-    // Toutes les méthodes qui suivent font partie de l'interface. Si nous ne
-    // nous en servons pas, il suffit de les déclarer vides.
-    // Une autre manière de faire, plus simple, est d'hériter de MouseAdapter,
-    // qui est une classe qui hérite de MouseListener avec une implémentation
-    // vide de toutes ses méthodes.
     @Override
     public void mouseClicked(MouseEvent e) { }
     @Override

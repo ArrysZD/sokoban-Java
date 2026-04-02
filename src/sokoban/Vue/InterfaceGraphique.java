@@ -16,8 +16,11 @@ public class InterfaceGraphique implements Runnable {
     private AnimationJeuAutomatique animationIA;
     private AnimationPousseur animationPousseur;
     private boolean animationsActives = true;
+    private sokoban.structures.Sequence<sokoban.Modele.Coup> solutionEnCours = null;
+    private int delaiSolution = 0;
+    private static final int DELAI_ENTRE_COUPS = 300;
+    private NiveauGraphique niveauGraphique;
 
-    // Labels mis à jour dynamiquement
     private JLabel labelPas;
     private JLabel labelPoussees;
     private JToggleButton btnIA;
@@ -39,6 +42,11 @@ public class InterfaceGraphique implements Runnable {
             device.setFullScreenWindow(frame);
             maximized = true;
         }
+    }
+
+    public void jouerSolution(sokoban.structures.Sequence<sokoban.Modele.Coup> solution) {
+        this.solutionEnCours = solution;
+        this.delaiSolution = 0;
     }
 
     public void toggleAnimations() {
@@ -69,17 +77,15 @@ public class InterfaceGraphique implements Runnable {
             btnRefaire.setEnabled(jeu.niveau().peutRefaire());
     }
 
-    private JPanel creeBarreLaterale(NiveauGraphique niveauGraphique) {
+    private JPanel creeBarreLaterale(NiveauGraphique ng) {
         Box boite = Box.createVerticalBox();
 
-        // Titre
         JLabel titre = new JLabel("Sokoban");
         titre.setAlignmentX(Component.CENTER_ALIGNMENT);
         titre.setFont(new Font("Arial", Font.BOLD, 18));
         boite.add(titre);
         boite.add(Box.createGlue());
 
-        // Compteurs
         labelPas = new JLabel("Pas : 0");
         labelPas.setAlignmentX(Component.CENTER_ALIGNMENT);
         labelPoussees = new JLabel("Poussées : 0");
@@ -88,14 +94,12 @@ public class InterfaceGraphique implements Runnable {
         boite.add(labelPoussees);
         boite.add(Box.createGlue());
 
-        // Bouton IA
         btnIA = new JToggleButton("IA");
         btnIA.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnIA.setFocusable(false);
         btnIA.addActionListener(e -> toggleIA());
         boite.add(btnIA);
 
-        // Bouton Animation
         btnAnimation = new JToggleButton("Animation");
         btnAnimation.setSelected(true);
         btnAnimation.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -104,19 +108,17 @@ public class InterfaceGraphique implements Runnable {
         boite.add(btnAnimation);
         boite.add(Box.createGlue());
 
-        // Bouton Prochain niveau
         JButton btnProchain = new JButton("Prochain");
         btnProchain.setAlignmentX(Component.CENTER_ALIGNMENT);
         btnProchain.setFocusable(false);
         btnProchain.addActionListener(e -> {
             if (!jeu.prochainNiveau()) System.exit(0);
-            niveauGraphique.repaint();
+            ng.repaint();
             miseAJour();
         });
         boite.add(btnProchain);
         boite.add(Box.createGlue());
 
-        // Boutons Annuler / Refaire
         JPanel panelAR = new JPanel();
         btnAnnuler = new JButton("<");
         btnRefaire = new JButton(">");
@@ -124,12 +126,12 @@ public class InterfaceGraphique implements Runnable {
         btnRefaire.setFocusable(false);
         btnAnnuler.addActionListener(e -> {
             jeu.niveau().annuler();
-            niveauGraphique.repaint();
+            ng.repaint();
             miseAJour();
         });
         btnRefaire.addActionListener(e -> {
             jeu.niveau().refaire();
-            niveauGraphique.repaint();
+            ng.repaint();
             miseAJour();
         });
         panelAR.add(btnAnnuler);
@@ -138,7 +140,6 @@ public class InterfaceGraphique implements Runnable {
         boite.add(panelAR);
         boite.add(Box.createGlue());
 
-        // Copyright
         JLabel copyright = new JLabel("Copyright G. Huard, 2018");
         copyright.setAlignmentX(Component.CENTER_ALIGNMENT);
         copyright.setFont(new Font("Arial", Font.ITALIC, 10));
@@ -152,7 +153,7 @@ public class InterfaceGraphique implements Runnable {
     @Override
     public void run() {
         frame = new JFrame("Sokoban");
-        NiveauGraphique niveauGraphique = new NiveauGraphique(jeu);
+        niveauGraphique = new NiveauGraphique(jeu);
 
         animationIA = new AnimationJeuAutomatique(jeu, niveauGraphique);
         animationPousseur = new AnimationPousseur(niveauGraphique);
@@ -174,6 +175,14 @@ public class InterfaceGraphique implements Runnable {
         Timer timer = new Timer(16, e -> {
             animationPousseur.avance();
             animationIA.avance();
+            if (solutionEnCours != null && !solutionEnCours.estVide()) {
+                delaiSolution += 16;
+                if (delaiSolution >= DELAI_ENTRE_COUPS) {
+                    delaiSolution = 0;
+                    sokoban.Modele.Coup coup = solutionEnCours.extraitTete();
+                    coup.executer(jeu.niveau());
+                }
+            }
             niveauGraphique.repaint();
             miseAJour();
         });

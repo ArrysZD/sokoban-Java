@@ -42,25 +42,25 @@ public class Coup implements Commande {
         return marques;
     }
 
-    @Override
-    public void executer(Niveau nv) {
-        boolean butDepart = nv.aBut(ligneDepart, colonneDepart);
-        nv.videCase(ligneDepart, colonneDepart);
-        if (butDepart) {
-            nv.ajouteBut(ligneDepart, colonneDepart);
+@Override
+public void executer(Niveau nv) {
+    // 1. D'abord déplacer la caisse si nécessaire
+    if (caisseBougee) {
+        boolean butDepartCaisse = nv.aBut(ligneDepartCaisse, colonneDepartCaisse);
+        nv.videCase(ligneDepartCaisse, colonneDepartCaisse);
+        if (butDepartCaisse) {
+            nv.ajouteBut(ligneDepartCaisse, colonneDepartCaisse);
         }
-
-        nv.ajoutePousseur(ligneArrivee, colonneArrivee);
-
-        if (caisseBougee) {
-            boolean butDepartCaisse = nv.aBut(ligneDepartCaisse, colonneDepartCaisse);
-            nv.videCase(ligneDepartCaisse, colonneDepartCaisse);
-            if (butDepartCaisse) {
-                nv.ajouteBut(ligneDepartCaisse, colonneDepartCaisse);
-            }
-            nv.ajouteCaisse(ligneArriveeCaisse, colonneArriveeCaisse);
-        }
+        nv.ajouteCaisse(ligneArriveeCaisse, colonneArriveeCaisse);
     }
+    // 2. Ensuite déplacer le pousseur
+    boolean butDepart = nv.aBut(ligneDepart, colonneDepart);
+    nv.videCase(ligneDepart, colonneDepart);
+    if (butDepart) {
+        nv.ajouteBut(ligneDepart, colonneDepart);
+    }
+    nv.ajoutePousseur(ligneArrivee, colonneArrivee);
+}
 
     @Override
     public void desexecuter(Niveau nv) {
